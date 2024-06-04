@@ -4,9 +4,10 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from util import classify, set_background
+from util import classify, set_background, visualize_predictions, visualize_misclassified
 from datetime import datetime
 import os
+import tensorflow as tf
 
 # Set background
 set_background('./bgrd/bg.jpg')
@@ -65,8 +66,16 @@ class_map = {0: 'Defect', 1: 'Perfect'}
 img_size = (300, 300)  # Replace with your actual image size
 batch_size = 3  # Replace with your actual batch size
 
-# Load test set (replace this with actual test set loading logic)
-test_set = ...  # Load your test set here
+# Load test set
+def preprocess(image):
+    image = tf.image.resize(image, img_size)
+    image = tf.image.rgb_to_grayscale(image)
+    image = image / 255.0
+    return image
+
+test_set = tf.data.Dataset.list_files('./path_to_test_images/*.jpg')
+test_set = test_set.map(lambda x: preprocess(tf.io.decode_jpeg(tf.io.read_file(x))))
+test_set = test_set.batch(batch_size)
 
 # Display image and classification results
 if file is not None:
@@ -82,7 +91,7 @@ if file is not None:
     # Column 2: Classification result and donut chart
     with col2:
         # Classify image
-        class_name, conf_score = classify(image, model, class_names, test_set, class_map, img_size, batch_size)
+        class_name, conf_score = classify(image, model, class_names)
         conf_percentage = conf_score * 100
         
         # Write classification in a box
@@ -124,3 +133,9 @@ if file is not None:
         
         # Save updated history
         history.to_csv(history_path, index=False)
+
+# Visualize predictions on test set
+visualize_predictions(model, test_set, class_map, img_size, batch_size)
+
+# Visualize misclassified images on test set
+visualize_misclassified(model, test_set, class_map, img_size, batch_size)
