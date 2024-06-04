@@ -4,7 +4,7 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from util import classify, set_background, visualize_predictions, visualize_misclassified)
+from util import (classify, set_background, visualize_predictions, visualize_misclassified)
 from datetime import datetime
 import os
 import tensorflow as tf
