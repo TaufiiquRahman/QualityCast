@@ -4,8 +4,16 @@ from PIL import ImageOps, Image
 import numpy as np
 import tensorflow as tf
 
-# Function to set background image for Streamlit app
 def set_background(image_file):
+    """
+    This function sets the background of a Streamlit app to an image specified by the given image file.
+
+    Parameters:
+        image_file (str): The path to the image file to be used as the background.
+
+    Returns:
+        None
+    """
     with open(image_file, "rb") as f:
         img_data = f.read()
     b64_encoded = base64.b64encode(img_data).decode()
