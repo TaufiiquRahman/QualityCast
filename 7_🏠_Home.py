@@ -145,3 +145,47 @@ if st.button('Show Predictions on Test Images'):
         ax.set_yticks([])
     plt.tight_layout()
     st.pyplot(fig)
+
+# Button to show misclassified test images
+if st.button('Show Misclassified Test Images'):
+    class_map = {0: 'Defect', 1: 'Perfect'}
+
+    # Assuming you have a test_set and related parameters defined
+    # Please replace the following placeholders with your actual values or data loading logic
+    test_set = ...  # Load your test set here
+    img_size = (300, 300)  # Replace with your actual image size
+    batch_size = 3  # Replace with your actual batch size
+
+    # Get the true labels and predictions for the entire test set
+    y_true = []
+    y_pred = []
+
+    for images, labels in test_set:
+        y_true.extend(labels)
+        predictions = model.predict(images)
+        y_pred.extend([np.argmax(pred) for pred in predictions])
+
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+
+    misclassified = np.nonzero(y_pred != y_true)[0]
+    batch_num = misclassified // batch_size
+    image_num = misclassified % batch_size
+
+    fig, axes = plt.subplots(1, 4, figsize=(12, 4))
+    fig.suptitle('Misclassified Test Images', y=0.98, weight='bold', size=14)
+    for ax, bnum, inum in zip(axes.flat, batch_num, image_num):
+        images, labels = test_set[bnum]
+        img = images[inum]
+        ax.imshow(img.reshape(*img_size), cmap='gray')
+        [[pred_prob]] = model.predict(img.reshape(1, *img_size, -1))
+        pred_label = class_map[int(pred_prob >= 0.5)]
+        true_label = class_map[labels[inum]]
+        prob_class = 100 * pred_prob if pred_label == 'Perfect' else 100 * (1 - pred_prob)
+        ax.set_title(f'Actual: {true_label}', size=12)
+        ax.set_xlabel(f'Predicted: {pred_label} ({prob_class:.2f}%)',
+                      color='g' if pred_label == true_label else 'r')
+        ax.set_xticks([])
+        ax.set_yticks([])
+    plt.tight_layout()
+    st.pyplot(fig)
