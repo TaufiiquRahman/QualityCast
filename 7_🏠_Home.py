@@ -88,7 +88,7 @@ if file is not None:
         # Create a donut chart
         fig, ax = plt.subplots()
         sizes = [conf_score, 1 - conf_score]
-        labels = [f'{class_name} ({conf_percentage:.1f}%)', 'Other']
+        labels = [f'{class_name} ({conf_percentage:.1f}%)', 'Perfect']
         colors = ['#ff9999','#66b3ff']
         ax.pie(sizes, labels=labels, colors=colors, startangle=90, counterclock=False, wedgeprops={'width': 0.3, 'edgecolor': 'w'})
         ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
