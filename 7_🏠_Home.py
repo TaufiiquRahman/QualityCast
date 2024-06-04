@@ -99,7 +99,7 @@ if file is not None:
         # Save the result to history
         log = pd.DataFrame([{
             "filename": file.name,
-            "class_name": class_name,
+            "class_names": class_names,
             "confidence_score": f"{conf_percentage:.1f}%",
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }])
@@ -109,7 +109,7 @@ if file is not None:
         try:
             history = pd.read_csv(history_path)
         except FileNotFoundError:
-            history = pd.DataFrame(columns=["filename", "class_name", "confidence_score", "timestamp"])
+            history = pd.DataFrame(columns=["filename", "class_names", "confidence_score", "timestamp"])
         
         # Append new log using pd.concat
         history = pd.concat([history, log], ignore_index=True)
