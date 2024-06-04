@@ -4,7 +4,7 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from util import (classify, set_background, visualize_predictions, visualize_misclassified)
+from util import classify, set_background, visualize_predictions, visualize_misclassified
 from datetime import datetime
 import os
 import tensorflow as tf
@@ -137,4 +137,7 @@ if st.button('Show Predictions on Test Images'):
     test_set = test_set.batch(batch_size)
 
     # Visualize predictions on test set
-    visualize_predictions(model, test_set, class_map)
+    visualize_predictions(model, test_set, class_map, img_size, batch_size)
+
+    # Visualize misclassified images on test set
+    visualize_misclassified(model, test_set, class_map, img_size, batch_size)
