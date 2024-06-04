@@ -54,11 +54,12 @@ st.markdown('<div class="header-box">Please upload a Casting Product Image</div>
 file = st.file_uploader('', type=['jpeg', 'jpg', 'png'])
 
 # Load classifier
+# Load classifier for binary classification (Defect or Perfect)
 model = load_model('./modelcast.h5')
 
-# Load class names
-with open('./model/labels.txt', 'r') as f:
-    class_names = [a[:-1].split(' ')[1] for a in f.readlines()]
+# Load class names for binary classification
+with open('./labels.txt', 'r') as f:
+    class_names = [line.strip() for line in f]
 
 # Display image and classification results
 if file is not None:
@@ -74,21 +75,24 @@ if file is not None:
     # Column 2: Classification result and donut chart
     with col2:
         # Classify image
-        class_names, conf_score = classify(image, model, class_names)
-        conf_percentage = conf_score * 100
+        class_index = classify(image, model)
+        
+        # Predicted class and confidence score
+        predicted_class = class_names[class_index]
+        conf_score = 100  # For binary classification, confidence is not available from the model directly
         
         # Write classification in a box
         st.markdown(f"""
         <div class="box">
-            <h2>{class_names}</h2>
-            <h3>score: {conf_percentage:.1f}%</h3>
+            <h2>{predicted_class}</h2>
+            <h3>Confidence score: {conf_score:.1f}%</h3>
         </div>
         """, unsafe_allow_html=True)
         
         # Create a donut chart
         fig, ax = plt.subplots()
-        sizes = [conf_score, 1 - conf_score]
-        labels = [f'{class_names} ({conf_percentage:.1f}%)', 'Other']
+        sizes = [100, 0]  # Sizes should sum up to 100 for the donut chart
+        labels = [f'{predicted_class} ({conf_score:.1f}%)', 'Other']
         colors = ['#ff9999','#66b3ff']
         ax.pie(sizes, labels=labels, colors=colors, startangle=90, counterclock=False, wedgeprops={'width': 0.3, 'edgecolor': 'w'})
         ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
@@ -99,8 +103,8 @@ if file is not None:
         # Save the result to history
         log = pd.DataFrame([{
             "filename": file.name,
-            "class_names": class_names,
-            "confidence_score": f"{conf_percentage:.1f}%",
+            "class_names": predicted_class,
+            "confidence_score": f"{conf_score:.1f}%",
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }])
         
