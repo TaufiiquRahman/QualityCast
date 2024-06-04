@@ -75,11 +75,7 @@ if file is not None:
     # Column 2: Classification result and donut chart
     with col2:
         # Classify image
-        class_index = classify(image, model, class_names)
-        
-        # Predicted class and confidence score
-        predicted_class = class_names[class_index]
-        conf_score = 100  # For binary classification, confidence is not available from the model directly
+        predicted_class, conf_score = classify(image, model, class_names)
         
         # Write classification in a box
         st.markdown(f"""
@@ -91,7 +87,7 @@ if file is not None:
         
         # Create a donut chart
         fig, ax = plt.subplots()
-        sizes = [100, 0]  # Sizes should sum up to 100 for the donut chart
+        sizes = [conf_score, 100 - conf_score]  # Sizes should sum up to 100 for the donut chart
         labels = [f'{predicted_class} ({conf_score:.1f}%)', 'Other']
         colors = ['#ff9999','#66b3ff']
         ax.pie(sizes, labels=labels, colors=colors, startangle=90, counterclock=False, wedgeprops={'width': 0.3, 'edgecolor': 'w'})
