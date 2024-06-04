@@ -58,7 +58,7 @@ file = st.file_uploader('', type=['jpeg', 'jpg', 'png'])
 model = load_model('./modelcast.h5')
 
 # Load class names for binary classification
-with open('./labels.txt', 'r') as f:
+with open('./model/labels.txt', 'r') as f:
     class_names = [line.strip() for line in f]
 
 # Display image and classification results
