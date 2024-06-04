@@ -75,7 +75,7 @@ if file is not None:
     # Column 2: Classification result and donut chart
     with col2:
         # Classify image
-        class_index = classify(image, model)
+        class_index = classify(image, model, class_names)
         
         # Predicted class and confidence score
         predicted_class = class_names[class_index]
