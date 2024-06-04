@@ -64,7 +64,7 @@ with open('./model/labels.txt', 'r') as f:
 # Define class map, image size, and batch size
 class_map = {0: 'Defect', 1: 'Perfect'}
 img_size = (300, 300)  # Replace with your actual image size
-batch_size = 3  # Replace with your actual batch size
+batch_size = 64  # Replace with your actual batch size
 
 # Display image and classification results
 if file is not None:
