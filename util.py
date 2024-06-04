@@ -6,6 +6,15 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 
 def set_background(image_file):
+    """
+    This function sets the background of a Streamlit app to an image specified by the given image file.
+
+    Parameters:
+        image_file (str): The path to the image file to be used as the background.
+
+    Returns:
+        None
+    """
     with open(image_file, "rb") as f:
         img_data = f.read()
     b64_encoded = base64.b64encode(img_data).decode()
@@ -20,15 +29,36 @@ def set_background(image_file):
     st.markdown(style, unsafe_allow_html=True)
 
 def classify(image, model, class_names):
+    """
+    This function takes an image, a model, and a list of class names and returns the predicted class and confidence
+    score of the image.
+
+    Parameters:
+        image (PIL.Image.Image): An image to be classified.
+        model (tensorflow.keras.Model): A trained machine learning model for image classification.
+        class_names (list): A list of class names corresponding to the classes that the model can predict.
+
+    Returns:
+        A tuple of the predicted class name and the confidence score for that prediction.
+    """
+    # Check if the image is grayscale
     if image.mode != 'L':
         image = ImageOps.grayscale(image)
 
+    # Resize the image to match the input shape expected by the model
     image = image.resize((300, 300))
-    image_array = np.array(image) / 255.0
-    image_array = np.expand_dims(image_array, axis=-1)
-    image_array = np.expand_dims(image_array, axis=0)
 
+    # Convert image to numpy array and normalize
+    image_array = np.array(image) / 255.0
+
+    # Expand dimensions to match the input shape expected by the model
+    image_array = np.expand_dims(image_array, axis=-1)  # Add channel dimension for grayscale image
+    image_array = np.expand_dims(image_array, axis=0)   # Add batch dimension
+
+    # Make prediction
     prediction = model.predict(image_array)
+
+    # Determine the predicted class and confidence score
     index = np.argmax(prediction)
     class_name = class_names[index]
     confidence_score = prediction[0][index]
@@ -36,6 +66,19 @@ def classify(image, model, class_names):
     return class_name, confidence_score
 
 def visualize_predictions(model, test_set, class_map, img_size, batch_size):
+    """
+    This function visualizes the predictions of a model on a given test set.
+
+    Parameters:
+        model (tensorflow.keras.Model): A trained machine learning model for image classification.
+        test_set (tf.data.Dataset): A dataset containing the test images.
+        class_map (dict): A dictionary mapping class indices to class names.
+        img_size (tuple): A tuple containing the dimensions of the input images.
+        batch_size (int): The batch size used for inference.
+
+    Returns:
+        None
+    """
     images, labels = next(iter(test_set))
     images = images.numpy().reshape(batch_size, *img_size)
 
@@ -55,6 +98,19 @@ def visualize_predictions(model, test_set, class_map, img_size, batch_size):
     st.pyplot(fig)
 
 def visualize_misclassified(model, test_set, class_map, img_size, batch_size):
+    """
+    This function visualizes misclassified images on a given test set.
+
+    Parameters:
+        model (tensorflow.keras.Model): A trained machine learning model for image classification.
+        test_set (tf.data.Dataset): A dataset containing the test images.
+        class_map (dict): A dictionary mapping class indices to class names.
+        img_size (tuple): A tuple containing the dimensions of the input images.
+        batch_size (int): The batch size used for inference.
+
+    Returns:
+        None
+    """
     y_true, y_pred = [], []
 
     for images, labels in test_set:
@@ -78,4 +134,11 @@ def visualize_misclassified(model, test_set, class_map, img_size, batch_size):
         [[pred_prob]] = model.predict(img.reshape(1, *img_size, -1))
         pred_label = class_map[int(pred_prob >= 0.5)]
         true_label = class_map[labels[inum]]
-        prob_class = 100 * pred_prob if
+        prob_class = 100 * pred_prob if pred_label == 'Perfect' else 100 * (1 - pred_prob)
+        ax.set_title(f'Actual: {true_label}', size=12)
+        ax.set_xlabel(f'Predicted: {pred_label} ({prob_class:.2f}%)',
+                      color='g' if pred_label == true_label else 'r')
+        ax.set_xticks([])
+        ax.set_yticks([])
+    plt.tight_layout()
+    plt.show()
