@@ -1,4 +1,8 @@
+import base64
+import streamlit as st
+from PIL import ImageOps, Image
 import numpy as np
+import tensorflow as tf
 import matplotlib.pyplot as plt
 
 def set_background(image_file):
@@ -63,20 +67,20 @@ def classify(image, model, class_names):
 
 def visualize_predictions(model, test_set, class_map, img_size, batch_size):
     """
-    Visualizes predictions on a given test set using the provided model.
+    This function visualizes the predictions of a model on a given test set.
 
     Parameters:
-        model (tensorflow.keras.Model): The trained machine learning model for image classification.
-        test_set (tf.data.Dataset): The test set containing images to be predicted.
+        model (tensorflow.keras.Model): A trained machine learning model for image classification.
+        test_set (tf.data.Dataset): A dataset containing the test images.
         class_map (dict): A dictionary mapping class indices to class names.
-        img_size (tuple): The size of the input images expected by the model.
-        batch_size (int): The batch size used for prediction.
+        img_size (tuple): A tuple containing the dimensions of the input images.
+        batch_size (int): The batch size used for inference.
 
     Returns:
         None
     """
     images, labels = next(iter(test_set))
-    images = images.reshape(batch_size, *img_size)
+    images = images.numpy().reshape(batch_size, *img_size)
 
     fig, axes = plt.subplots(1, 3, figsize=(9, 4))
     fig.suptitle('Prediction on Test Images', y=0.98, weight='bold', size=14)
@@ -87,31 +91,36 @@ def visualize_predictions(model, test_set, class_map, img_size, batch_size):
         true_label = class_map[label]
         prob_class = 100 * pred_prob if pred_label == 'Perfect' else 100 * (1 - pred_prob)
         ax.set_title(f'Actual: {true_label}', size=12)
-        ax.set_xlabel(f'Predicted: {pred_label} ({prob_class:.2f}%)',
-                      color='g' if pred_label == true_label else 'r')
+        ax.set_xlabel(f'Predicted: {pred_label} ({prob_class:.2f}%)', color='g' if pred_label == true_label else 'r')
         ax.set_xticks([])
         ax.set_yticks([])
     plt.tight_layout()
-    plt.show()
+    st.pyplot(fig)
 
 def visualize_misclassified(model, test_set, class_map, img_size, batch_size):
     """
-    Visualizes misclassified images on a given test set using the provided model.
+    This function visualizes misclassified images on a given test set.
 
     Parameters:
-        model (tensorflow.keras.Model): The trained machine learning model for image classification.
-        test_set (tf.data.Dataset): The test set containing images to be predicted.
+        model (tensorflow.keras.Model): A trained machine learning model for image classification.
+        test_set (tf.data.Dataset): A dataset containing the test images.
         class_map (dict): A dictionary mapping class indices to class names.
-        img_size (tuple): The size of the input images expected by the model.
-        batch_size (int): The batch size used for prediction.
+        img_size (tuple): A tuple containing the dimensions of the input images.
+        batch_size (int): The batch size used for inference.
 
     Returns:
         None
     """
-    y_true = np.concatenate([labels for images, labels in test_set])
-    y_pred_prob = model.predict(test_set)
-    y_pred = (y_pred_prob >= 0.5).astype(int)
+    y_true, y_pred = [], []
 
+    for images, labels in test_set:
+        predictions = model.predict(images)
+        y_true.extend(labels.numpy())
+        y_pred.extend([1 if pred >= 0.5 else 0 for pred in predictions])
+
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    
     misclassified = np.nonzero(y_pred != y_true)[0]
     batch_num = misclassified // batch_size
     image_num = misclassified % batch_size
@@ -120,7 +129,7 @@ def visualize_misclassified(model, test_set, class_map, img_size, batch_size):
     fig.suptitle('Misclassified Test Images', y=0.98, weight='bold', size=14)
     for ax, bnum, inum in zip(axes.flat, batch_num, image_num):
         images, labels = next(iter(test_set.skip(bnum).take(1)))
-        img = images[inum]
+        img = images[inum].numpy()
         ax.imshow(img.reshape(*img_size), cmap='gray')
         [[pred_prob]] = model.predict(img.reshape(1, *img_size, -1))
         pred_label = class_map[int(pred_prob >= 0.5)]
@@ -133,4 +142,3 @@ def visualize_misclassified(model, test_set, class_map, img_size, batch_size):
         ax.set_yticks([])
     plt.tight_layout()
     plt.show()
-#
