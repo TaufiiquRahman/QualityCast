@@ -74,13 +74,13 @@ if file is not None:
     # Column 2: Classification result and donut chart
     with col2:
         # Classify image
-        class_name, conf_score = classify(image, model, class_names)
+        class_names, conf_score = classify(image, model, class_names)
         conf_percentage = conf_score * 100
         
         # Write classification in a box
         st.markdown(f"""
         <div class="box">
-            <h2>{class_name}</h2>
+            <h2>{class_names}</h2>
             <h3>score: {conf_percentage:.1f}%</h3>
         </div>
         """, unsafe_allow_html=True)
