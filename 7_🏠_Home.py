@@ -132,7 +132,7 @@ if st.button('Show Predictions on Test Images'):
         image = image / 255.0
         return image
 
-     test_set = tf.data.Dataset.list_files('./casting_data/casting_data/test/*.jpg')
+    test_set = tf.data.Dataset.list_files('./casting_data/casting_data/test/*.jpg')
     test_set = test_set.map(lambda x: preprocess(tf.io.decode_jpeg(tf.io.read_file(x))))
     test_set = test_set.batch(batch_size)
 
