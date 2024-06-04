@@ -60,6 +60,14 @@ model = load_model('./modelcast.h5')
 with open('./model/labels.txt', 'r') as f:
     class_names = [a[:-1].split(' ')[1] for a in f.readlines()]
 
+# Define class map, image size, and batch size
+class_map = {0: 'Defect', 1: 'Perfect'}
+img_size = (300, 300)  # Replace with your actual image size
+batch_size = 3  # Replace with your actual batch size
+
+# Load test set (replace this with actual test set loading logic)
+test_set = ...  # Load your test set here
+
 # Display image and classification results
 if file is not None:
     # Create two columns for layout
@@ -74,7 +82,7 @@ if file is not None:
     # Column 2: Classification result and donut chart
     with col2:
         # Classify image
-        class_name, conf_score = classify(image, model, class_names)
+        class_name, conf_score = classify(image, model, class_names, test_set, class_map, img_size, batch_size)
         conf_percentage = conf_score * 100
         
         # Write classification in a box
@@ -116,76 +124,3 @@ if file is not None:
         
         # Save updated history
         history.to_csv(history_path, index=False)
-
-# Button to show predictions on test images
-if st.button('Show Predictions on Test Images'):
-    class_map = {0: 'Defect', 1: 'Perfect'}
-    
-    # Assuming you have a test_set and related parameters defined
-    # Please replace the following placeholders with your actual values or data loading logic
-    test_set = ...  # Load your test set here
-    img_size = (300, 300)  # Replace with your actual image size
-    batch_size = 3  # Replace with your actual batch size
-
-    images, labels = next(iter(test_set))
-    images = images.reshape(batch_size, *img_size)
-
-    fig, axes = plt.subplots(1, 3, figsize=(9, 4))
-    fig.suptitle('Prediction on Test Images', y=0.98, weight='bold', size=14)
-    for ax, img, label in zip(axes.flat, images, labels):
-        ax.imshow(img, cmap='gray')
-        [[pred_prob]] = model.predict(img.reshape(1, *img_size, -1))
-        pred_label = class_map[int(pred_prob >= 0.5)]
-        true_label = class_map[label]
-        prob_class = 100 * pred_prob if pred_label == 'Perfect' else 100 * (1 - pred_prob)
-        ax.set_title(f'Actual: {true_label}', size=12)
-        ax.set_xlabel(f'Predicted: {pred_label} ({prob_class:.2f}%)',
-                      color='g' if pred_label == true_label else 'r')
-        ax.set_xticks([])
-        ax.set_yticks([])
-    plt.tight_layout()
-    st.pyplot(fig)
-
-# Button to show misclassified test images
-if st.button('Show Misclassified Test Images'):
-    class_map = {0: 'Defect', 1: 'Perfect'}
-
-    # Assuming you have a test_set and related parameters defined
-    # Please replace the following placeholders with your actual values or data loading logic
-    test_set = ...  # Load your test set here
-    img_size = (300, 300)  # Replace with your actual image size
-    batch_size = 3  # Replace with your actual batch size
-
-    # Get the true labels and predictions for the entire test set
-    y_true = []
-    y_pred = []
-
-    for images, labels in test_set:
-        y_true.extend(labels)
-        predictions = model.predict(images)
-        y_pred.extend([np.argmax(pred) for pred in predictions])
-
-    y_true = np.array(y_true)
-    y_pred = np.array(y_pred)
-
-    misclassified = np.nonzero(y_pred != y_true)[0]
-    batch_num = misclassified // batch_size
-    image_num = misclassified % batch_size
-
-    fig, axes = plt.subplots(1, 4, figsize=(12, 4))
-    fig.suptitle('Misclassified Test Images', y=0.98, weight='bold', size=14)
-    for ax, bnum, inum in zip(axes.flat, batch_num, image_num):
-        images, labels = test_set[bnum]
-        img = images[inum]
-        ax.imshow(img.reshape(*img_size), cmap='gray')
-        [[pred_prob]] = model.predict(img.reshape(1, *img_size, -1))
-        pred_label = class_map[int(pred_prob >= 0.5)]
-        true_label = class_map[labels[inum]]
-        prob_class = 100 * pred_prob if pred_label == 'Perfect' else 100 * (1 - pred_prob)
-        ax.set_title(f'Actual: {true_label}', size=12)
-        ax.set_xlabel(f'Predicted: {pred_label} ({prob_class:.2f}%)',
-                      color='g' if pred_label == true_label else 'r')
-        ax.set_xticks([])
-        ax.set_yticks([])
-    plt.tight_layout()
-    st.pyplot(fig)
