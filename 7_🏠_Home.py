@@ -4,10 +4,9 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from util import classify, set_background, visualize_predictions, visualize_misclassified
+from util import classify, set_background
 from datetime import datetime
 import os
-import tensorflow as tf
 
 # Set background
 set_background('./bgrd/bg.jpg')
@@ -61,11 +60,6 @@ model = load_model('./modelcast.h5')
 with open('./model/labels.txt', 'r') as f:
     class_names = [a[:-1].split(' ')[1] for a in f.readlines()]
 
-# Define class map, image size, and batch size
-class_map = {0: 'Defect', 1: 'Perfect'}
-img_size = (300, 300)  # Replace with your actual image size
-batch_size = 64  # Replace with your actual batch size
-
 # Display image and classification results
 if file is not None:
     # Create two columns for layout
@@ -80,13 +74,13 @@ if file is not None:
     # Column 2: Classification result and donut chart
     with col2:
         # Classify image
-        class_name, conf_score = classify(image, model, class_names)
+        class_names, conf_score = classify(image, model, class_names)
         conf_percentage = conf_score * 100
         
         # Write classification in a box
         st.markdown(f"""
         <div class="box">
-            <h2>{class_name}</h2>
+            <h2>{class_names}</h2>
             <h3>score: {conf_percentage:.1f}%</h3>
         </div>
         """, unsafe_allow_html=True)
@@ -94,7 +88,7 @@ if file is not None:
         # Create a donut chart
         fig, ax = plt.subplots()
         sizes = [conf_score, 1 - conf_score]
-        labels = [f'{class_name} ({conf_percentage:.1f}%)', 'Perfect']
+        labels = [f'{class_names} ({conf_percentage:.1f}%)', 'Other']
         colors = ['#ff9999','#66b3ff']
         ax.pie(sizes, labels=labels, colors=colors, startangle=90, counterclock=False, wedgeprops={'width': 0.3, 'edgecolor': 'w'})
         ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
@@ -105,39 +99,20 @@ if file is not None:
         # Save the result to history
         log = pd.DataFrame([{
             "filename": file.name,
-            "class_name": class_name,
+            "class_names": class_names,
             "confidence_score": f"{conf_percentage:.1f}%",
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }])
         
         # Load existing history if available
-        history_path = os.path.join(os.path.dirname(__file__), 'pages/history.csv')
+        history_path = os.path.join(os.path.dirname(_file_), 'pages/history.csv')
         try:
             history = pd.read_csv(history_path)
         except FileNotFoundError:
-            history = pd.DataFrame(columns=["filename", "class_name", "confidence_score", "timestamp"])
+            history = pd.DataFrame(columns=["filename", "class_names", "confidence_score", "timestamp"])
         
         # Append new log using pd.concat
         history = pd.concat([history, log], ignore_index=True)
         
         # Save updated history
         history.to_csv(history_path, index=False)
-
-# Button to show predictions on test images
-if st.button('Show Predictions on Test Images'):
-    # Load and preprocess the test set
-    def preprocess(image):
-        image = tf.image.resize(image, img_size)
-        image = tf.image.rgb_to_grayscale(image)
-        image = image / 255.0
-        return image
-
-    test_set = tf.data.Dataset.list_files('./casting_data/casting_data/test/*.jpg')
-    test_set = test_set.map(lambda x: preprocess(tf.io.decode_jpeg(tf.io.read_file(x))))
-    test_set = test_set.batch(batch_size)
-
-    # Visualize predictions on test set
-    visualize_predictions(model, test_set, class_map, img_size, batch_size)
-
-    # Visualize misclassified images on test set
-    visualize_misclassified(model, test_set, class_map, img_size, batch_size)
