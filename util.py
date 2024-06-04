@@ -89,7 +89,7 @@ def visualize_predictions(model, test_set, class_map, img_size, batch_size):
         [[pred_prob]] = model.predict(img.reshape(1, *img_size, -1))
         pred_label = class_map[int(pred_prob >= 0.5)]
         true_label = class_map[label]
-        prob_class = 100 * pred_prob if pred_label == 'Perfect' else 100 * (1 - pred_prob)
+        prob_class = 100 * pred_prob if pred_label == 'Defect' else 100 * (1 - pred_prob)
         ax.set_title(f'Actual: {true_label}', size=12)
         ax.set_xlabel(f'Predicted: {pred_label} ({prob_class:.2f}%)', color='g' if pred_label == true_label else 'r')
         ax.set_xticks([])
