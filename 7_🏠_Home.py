@@ -75,7 +75,7 @@ if file is not None:
     # Column 2: Classification result and donut chart
     with col2:
         # Classify image
-        predicted_class, conf_score = classify(image, model, class_names)
+        predicted_class, conf_score = classify_image(image, model, class_names)
         
         # Write classification in a box
         st.markdown(f"""
