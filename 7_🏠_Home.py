@@ -137,4 +137,4 @@ if st.button('Show Predictions on Test Images'):
     test_set = test_set.batch(batch_size)
 
     # Visualize predictions on test set
-    visualize_predictions(model, test_set, class_map
+    visualize_predictions(model, test_set, class_map)
