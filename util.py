@@ -27,8 +27,19 @@ def set_background(image_file):
     """
     st.markdown(style, unsafe_allow_html=True)
 
-# Function to classify images using a trained model
-def classify_image(image, model, class_names):
+def classify(image, model, class_names):
+    """
+    This function takes an image, a model, and a list of class names and returns the predicted class and confidence
+    score of the image.
+
+    Parameters:
+        image (PIL.Image.Image): An image to be classified.
+        model (tensorflow.keras.Model): A trained machine learning model for image classification.
+        class_names (list): A list of class names corresponding to the classes that the model can predict.
+
+    Returns:
+        A tuple of the predicted class name and the confidence score for that prediction.
+    """
     # Check if the image is grayscale
     if image.mode != 'L':
         image = ImageOps.grayscale(image)
@@ -48,7 +59,7 @@ def classify_image(image, model, class_names):
 
     # Determine the predicted class and confidence score
     index = np.argmax(prediction)
-    predicted_class = class_names[index]
+    class_name = class_names[index]
     confidence_score = prediction[0][index]
 
-    return predicted_class, confidence_score
+    return class_name, confidence_score
