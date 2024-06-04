@@ -4,10 +4,9 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from util import classify, set_background, visualize_predictions, visualize_misclassified
+from util import classify, set_background
 from datetime import datetime
 import os
-import tensorflow as tf
 
 # Set background
 set_background('./bgrd/bg.jpg')
@@ -60,22 +59,6 @@ model = load_model('./modelcast.h5')
 # Load class names
 with open('./model/labels.txt', 'r') as f:
     class_names = [a[:-1].split(' ')[1] for a in f.readlines()]
-
-# Define class map, image size, and batch size
-class_map = {0: 'Defect', 1: 'Perfect'}
-img_size = (300, 300)  # Replace with your actual image size
-batch_size = 3  # Replace with your actual batch size
-
-# Load test set
-def preprocess(image):
-    image = tf.image.resize(image, img_size)
-    image = tf.image.rgb_to_grayscale(image)
-    image = image / 255.0
-    return image
-
-test_set = tf.data.Dataset.list_files('./path_to_test_images/*.jpg')
-test_set = test_set.map(lambda x: preprocess(tf.io.decode_jpeg(tf.io.read_file(x))))
-test_set = test_set.batch(batch_size)
 
 # Display image and classification results
 if file is not None:
@@ -134,8 +117,31 @@ if file is not None:
         # Save updated history
         history.to_csv(history_path, index=False)
 
-# Visualize predictions on test set
-visualize_predictions(model, test_set, class_map, img_size, batch_size)
+# Button to show predictions on test images
+if st.button('Show Predictions on Test Images'):
+    class_map = {0: 'Defect', 1: 'Perfect'}
+    
+    # Assuming you have a test_set and related parameters defined
+    # Please replace the following placeholders with your actual values or data loading logic
+    test_set = ...  # Load your test set here
+    img_size = (300, 300)  # Replace with your actual image size
+    batch_size = 3  # Replace with your actual batch size
 
-# Visualize misclassified images on test set
-visualize_misclassified(model, test_set, class_map, img_size, batch_size)
+    images, labels = next(iter(test_set))
+    images = images.reshape(batch_size, *img_size)
+
+    fig, axes = plt.subplots(1, 3, figsize=(9, 4))
+    fig.suptitle('Prediction on Test Images', y=0.98, weight='bold', size=14)
+    for ax, img, label in zip(axes.flat, images, labels):
+        ax.imshow(img, cmap='gray')
+        [[pred_prob]] = model.predict(img.reshape(1, *img_size, -1))
+        pred_label = class_map[int(pred_prob >= 0.5)]
+        true_label = class_map[label]
+        prob_class = 100 * pred_prob if pred_label == 'Perfect' else 100 * (1 - pred_prob)
+        ax.set_title(f'Actual: {true_label}', size=12)
+        ax.set_xlabel(f'Predicted: {pred_label} ({prob_class:.2f}%)',
+                      color='g' if pred_label == true_label else 'r')
+        ax.set_xticks([])
+        ax.set_yticks([])
+    plt.tight_layout()
+    st.pyplot(fig)
