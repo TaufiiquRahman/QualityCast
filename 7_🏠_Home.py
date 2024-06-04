@@ -132,5 +132,12 @@ if st.button('Show Predictions on Test Images'):
         image = image / 255.0
         return image
 
-    test_set = tf.data.Dataset.list_files('./casting_data/casting_data/test/*.jpg')
-    test_set = test_set.map(lambda x: preprocess(tf.io.decode_jpeg(tf.io.read
+     test_set = tf.data.Dataset.list_files('./casting_data/casting_data/test/*.jpg')
+    test_set = test_set.map(lambda x: preprocess(tf.io.decode_jpeg(tf.io.read_file(x))))
+    test_set = test_set.batch(batch_size)
+
+    # Visualize predictions on test set
+    visualize_predictions(model, test_set, class_map, img_size, batch_size)
+
+    # Visualize misclassified images on test set
+    visualize_misclassified(model, test_set, class_map, img_size, batch_size)
