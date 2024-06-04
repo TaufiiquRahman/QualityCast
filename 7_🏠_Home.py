@@ -4,7 +4,7 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from util import classify, set_background
+from util import classify_image, set_background
 from datetime import datetime
 import os
 
