@@ -36,7 +36,7 @@ for i, (name, position) in enumerate(team_data):
         # Display image in the corresponding column
         columns[i].image(resized_img, caption=f"{name}", use_column_width=True)
         # Center-align the position text
-        columns[i].write(f"<    p style='text-align:center'>{position}</p>", unsafe_allow_html=True)
+        columns[i].write(f"<p style='text-align:center'>{position}</p>", unsafe_allow_html=True)
 
 
 #st.markdown(markdown, unsafe_allow_html=True)
