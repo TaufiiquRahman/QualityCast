@@ -4,7 +4,7 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from util import classify_new, set_background
+from util import classify, set_background
 from datetime import datetime
 import os
 
@@ -73,8 +73,8 @@ if file is not None:
     
     # Column 2: Classification result and donut chart
     with col2:
-        # Classify image using new function
-        class_name, conf_score = classify_new(image, model, class_names)
+        # Classify image
+        class_name, conf_score = classify(image, model, class_names)
         conf_percentage = conf_score * 100
         
         # Write classification in a box
@@ -105,8 +105,7 @@ if file is not None:
         }])
         
         # Load existing history if available
-        history_path = os.path.join(os.path.dirname(__file__), 'history.csv')
-        st.write(f"History file path: {history_path}")
+        history_path = os.path.join(os.path.dirname(__file__), 'pages/history.csv')
         try:
             history = pd.read_csv(history_path)
         except FileNotFoundError:
@@ -117,4 +116,3 @@ if file is not None:
         
         # Save updated history
         history.to_csv(history_path, index=False)
-        st.write("History updated.")
