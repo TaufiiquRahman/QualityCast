@@ -106,6 +106,7 @@ if file is not None:
         
         # Load existing history if available
         history_path = os.path.join(os.path.dirname(__file__), 'history.csv')
+        st.write(f"History file path: {history_path}")
         try:
             history = pd.read_csv(history_path)
         except FileNotFoundError:
@@ -116,3 +117,4 @@ if file is not None:
         
         # Save updated history
         history.to_csv(history_path, index=False)
+        st.write("History updated.")
