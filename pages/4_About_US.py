@@ -14,7 +14,7 @@ markdown = """
 st.markdown(markdown)
 
 # Set title
-st.title("Contact Us")
+st.markdown("<h1 style='text-align: center;'>Contact Us</h1>", unsafe_allow_html=True)
 markdown = """
 1. Firts Please Upload / Drag Image File to box 
 
