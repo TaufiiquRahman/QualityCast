@@ -6,32 +6,17 @@ from PIL import Image
 
 # Set title
 st.title("Casting Quality Control")
-markdown = """
-1. Firts Please Upload / Drag Image File to box 
 
-"""
-
-st.markdown(markdown)
 
 # Set title
 st.title("Contact Us")
-markdown = """
-1. Firts Please Upload / Drag Image File to box 
 
-"""
-
-st.markdown(markdown)
 
 
 
 # Set title
 st.title("Team")
-markdown = """
-1. Firts Please Upload / Drag Image File to box 
 
-"""
-
-st.markdown(markdown)
 # Add content for the About Us page
 st.write("This is the About Us page. You can provide information about your project, team, or any other relevant details here.")
 
