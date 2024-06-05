@@ -28,10 +28,10 @@ def set_background(image_file):
     """
     st.markdown(style, unsafe_allow_html=True)
 
-def classify(image, model, class_names):
+def classify_new(image, model, class_names):
     """
     This function takes an image, a model, and a list of class names and returns the predicted class and confidence
-    score of the image.
+    score of the image using a different prediction approach.
 
     Parameters:
         image (PIL.Image.Image): An image to be classified.
@@ -41,27 +41,27 @@ def classify(image, model, class_names):
     Returns:
         A tuple of the predicted class name and the confidence score for that prediction.
     """
-    # Check if the image is grayscale
+    # Convert image to grayscale if not already
     if image.mode != 'L':
         image = ImageOps.grayscale(image)
-
-    # Resize the image to match the input shape expected by the model
+    
+    # Resize the image to the input shape expected by the model
     image = image.resize((300, 300))
 
     # Convert image to numpy array and normalize
     image_array = np.array(image) / 255.0
 
-    # Expand dimensions to match the input shape expected by the model
-    image_array = np.expand_dims(image_array, axis=-1)  # Add channel dimension for grayscale image
-    image_array = np.expand_dims(image_array, axis=0)   # Add batch dimension
+    # Add batch dimension (1, 300, 300, 1)
+    image_array = np.expand_dims(image_array, axis=(0, -1))
 
-    # Make prediction
+    # Make prediction using the model
     prediction = model.predict(image_array)
 
-    # Determine the predicted class and confidence score
-    index = np.argmax(prediction)
-    class_name = class_names[index]
-    confidence_score = prediction[0][index]
+    # Get the index of the class with the highest probability
+    predicted_index = np.argmax(prediction, axis=1)[0]
 
-    return class_name, confidence_score
-#
+    # Get the class name and confidence score
+    predicted_class = class_names[predicted_index]
+    confidence_score = prediction[0][predicted_index]
+
+    return predicted_class, confidence_score
