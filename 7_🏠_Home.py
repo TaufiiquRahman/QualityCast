@@ -39,11 +39,11 @@ st.markdown(
     }
     .box h2, .box h3 {
         margin: 0;
+        color: white; /* Add this line to set text color to white */
     }
     </style>
     """, unsafe_allow_html=True
 )
-
 # Set title
 st.markdown('<div class="title-box">Casting Quality Control</div>', unsafe_allow_html=True)
 
