@@ -45,7 +45,7 @@ st.markdown(
 )
 
 # Set title
-st.markdown('<div class="title-box">Quality Cast</div>', unsafe_allow_html=True)
+st.markdown('<div class="title-box">Casting Quality Control</div>', unsafe_allow_html=True)
 
 # Set header
 st.markdown('<div class="header-box">Please upload a Casting Product Image</div>', unsafe_allow_html=True)
