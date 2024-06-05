@@ -54,10 +54,10 @@ st.markdown('<div class="header-box">Please upload a Casting Product Image</div>
 file = st.file_uploader('', type=['jpeg', 'jpg', 'png'])
 
 # Load classifier
-model = load_model('./model.h5')
+model = load_model('./modelcast.h5')
 
 # Load class names
-with open('./model/labels.txt', 'r') as f:
+with open('./model/label.txt', 'r') as f:
     class_names = [a[:-1].split(' ')[1] for a in f.readlines()]
 
 # Display image and classification results
@@ -74,23 +74,22 @@ if file is not None:
     # Column 2: Classification result and donut chart
     with col2:
         # Classify image
-        top_classes = classify(image, model, class_names, top_n=5)
+        class_name, conf_score = classify(image, model, class_names)
+        conf_percentage = conf_score * 100
         
         # Write classification in a box
-        for i, (class_name, conf_score) in enumerate(top_classes):
-            conf_percentage = conf_score * 100
-            st.markdown(f"""
-            <div class="box">
-                <h2>{class_name}</h2>
-                <h3>score: {conf_percentage:.1f}%</h3>
-            </div>
-            """, unsafe_allow_html=True)
+        st.markdown(f"""
+        <div class="box">
+            <h2>{class_name}</h2>
+            <h3>score: {conf_percentage:.1f}%</h3>
+        </div>
+        """, unsafe_allow_html=True)
         
         # Create a donut chart
         fig, ax = plt.subplots()
-        sizes = [score for _, score in top_classes]
-        labels = [f'{class_name} ({score*100:.1f}%)' for class_name, score in top_classes]
-        colors = ['#ff9999','#66b3ff', '#99ff99', '#ffcc99', '#c2c2f0']  # Adjust colors as needed
+        sizes = [conf_score, 1 - conf_score]
+        labels = [f'{class_name} ({conf_percentage:.1f}%)', 'Other']
+        colors = ['#ff9999','#66b3ff']
         ax.pie(sizes, labels=labels, colors=colors, startangle=90, counterclock=False, wedgeprops={'width': 0.3, 'edgecolor': 'w'})
         ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
         
@@ -101,9 +100,9 @@ if file is not None:
         log = pd.DataFrame([{
             "filename": file.name,
             "class_name": class_name,
-            "confidence_score": f"{conf_score*100:.1f}%",
+            "confidence_score": f"{conf_percentage:.1f}%",
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        } for class_name, conf_score in top_classes])
+        }])
         
         # Load existing history if available
         history_path = os.path.join(os.path.dirname(__file__), 'pages/history.csv')
