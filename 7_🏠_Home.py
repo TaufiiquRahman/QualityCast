@@ -74,7 +74,7 @@ if file is not None:
     # Column 2: Classification result and donut chart
     with col2:
         # Classify image
-        top_classes = classify(image, model, class_names, top_n=5)
+        top_classes = classify(image, model, class_names, top_n=2)
         
         # Write classification in a box
         for i, (class_name, conf_score) in enumerate(top_classes):
