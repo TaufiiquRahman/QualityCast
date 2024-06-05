@@ -5,9 +5,8 @@ from PIL import Image
 # Define CSS for the title, header, image name, and text boxes
 
 # Set title
-st.markdown("<h1 style='text-align: center;'>Quality Cast App</h1>", unsafe_allow_html=True)
-
-st.markdown = """
+st.markdown("<h1 style='text-align: center;'>Contact Us</h1>", unsafe_allow_html=True)
+markdown = """
 1. Firts Please Upload / Drag Image File to box 
 
 """
