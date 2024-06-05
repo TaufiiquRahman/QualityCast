@@ -27,19 +27,19 @@ def set_background(image_file):
     """
     st.markdown(style, unsafe_allow_html=True)
 
-def classify(image, model, class_names, top_n=5):
+def classify(image, model, class_names, top_n=1):
     """
-    This function takes an image, a model, a list of class names, and returns the top N predicted classes 
-    along with their confidence scores.
+    This function takes an image, a model, and a list of class names and returns the top N predicted classes 
+    and their confidence scores.
 
     Parameters:
         image (PIL.Image.Image): An image to be classified.
         model (tensorflow.keras.Model): A trained machine learning model for image classification.
         class_names (list): A list of class names corresponding to the classes that the model can predict.
-        top_n (int): Number of top predicted classes to return.
+        top_n (int): The number of top predictions to return.
 
     Returns:
-        A list of tuples containing the top N predicted class names and their confidence scores.
+        A list of tuples of the predicted class names and their confidence scores.
     """
     # Check if the image is grayscale
     if image.mode != 'L':
@@ -58,12 +58,8 @@ def classify(image, model, class_names, top_n=5):
     # Make prediction
     prediction = model.predict(image_array)
 
-    # Get top N predicted class indices and their corresponding scores
-    top_indices = np.argsort(prediction)[0][-top_n:][::-1]
-    top_scores = prediction[0][top_indices]
-
-    # Map indices to class names and create tuples of class name and confidence score
-    top_classes = [(class_names[i], score) for i, score in zip(top_indices, top_scores)]
+    # Get the top N predicted classes and their confidence scores
+    top_indices = np.argsort(prediction[0])[-top_n:][::-1]
+    top_classes = [(class_names[i], prediction[0][i]) for i in top_indices]
 
     return top_classes
-
