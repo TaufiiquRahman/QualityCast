@@ -64,3 +64,4 @@ def classify(image, model, class_names):
     confidence_score = prediction[0][index]
 
     return class_name, confidence_score
+#
