@@ -80,9 +80,10 @@ if file is not None:
         for i, (class_name, conf_score) in enumerate(top_classes):
             conf_percentage = conf_score * 100
             st.markdown(f"""
+            st.markdown(f"""
             <div class="box">
-                <h2>{class_name}</h2>
-                <h3>score: {conf_percentage:.1f}%</h3>
+                    <h2 style="color: red;">{class_name}</h2>
+                    <h3 style="color: blue;">score: {conf_percentage:.1f}%</h3>
             </div>
             """, unsafe_allow_html=True)
         
