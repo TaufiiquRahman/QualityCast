@@ -76,26 +76,27 @@ if file is not None:
         # Classify image
         top_classes = classify(image, model, class_names, top_n=5)
         
-        # Write classification in a box
-        for i, (class_name, conf_score) in enumerate(top_classes):
-            conf_percentage = conf_score * 100
-            st.markdown(f"""
-            <div class="box">
-                <h2>{class_name}</h2>
-                <h3>score: {conf_percentage:.1f}%</h3>
-            </div>
-            """, unsafe_allow_html=True)
+        # Filter top classes for Perfect and Defect
+        perfect_classes = [(class_name, conf_score) for class_name, conf_score in top_classes if class_name == "Perfect"]
+        defect_classes = [(class_name, conf_score) for class_name, conf_score in top_classes if class_name == "Defect"]
         
-        # Create a donut chart
-        fig, ax = plt.subplots()
-        sizes = [score for _, score in top_classes]
-        labels = [f'{class_name} ({score*100:.1f}%)' for class_name, score in top_classes]
-        colors = ['#ff9999','#66b3ff', '#99ff99', '#ffcc99', '#c2c2f0']  # Adjust colors as needed
-        ax.pie(sizes, labels=labels, colors=colors, startangle=90, counterclock=False, wedgeprops={'width': 0.3, 'edgecolor': 'w'})
-        ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+        # Create a donut chart for Perfect predictions
+        if perfect_classes:
+            fig1, ax1 = plt.subplots()
+            sizes1 = [score for _, score in perfect_classes]
+            labels1 = [f'{class_name} ({score*100:.1f}%)' for class_name, score in perfect_classes]
+            ax1.pie(sizes1, labels=labels1, colors=['green'], startangle=90, counterclock=False, wedgeprops={'width': 0.3, 'edgecolor': 'w'})
+            ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+            st.pyplot(fig1)
         
-        # Display the donut chart
-        st.pyplot(fig)
+        # Create a donut chart for Defect predictions
+        if defect_classes:
+            fig2, ax2 = plt.subplots()
+            sizes2 = [score for _, score in defect_classes]
+            labels2 = [f'{class_name} ({score*100:.1f}%)' for class_name, score in defect_classes]
+            ax2.pie(sizes2, labels=labels2, colors=['red'], startangle=90, counterclock=False, wedgeprops={'width': 0.3, 'edgecolor': 'w'})
+            ax2.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+            st.pyplot(fig2)
         
         # Save the result to history
         log = pd.DataFrame([{
