@@ -90,7 +90,7 @@ if file is not None:
         fig, ax = plt.subplots()
         sizes = [score for _, score in top_classes]
         labels = [f'{class_name} ({score*100:.1f}%)' for class_name, score in top_classes]
-        colors = ['#ff9999','#66b3ff', '#99ff99', '#ffcc99', '#c2c2f0']  # Adjust colors as needed
+        colors = '#ff9999'  # Adjust colors as needed
         ax.pie(sizes, labels=labels, colors=colors, startangle=90, counterclock=False, wedgeprops={'width': 0.3, 'edgecolor': 'w'})
         ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
         
