@@ -54,10 +54,10 @@ st.markdown('<div class="header-box">Please upload a Casting Product Image</div>
 file = st.file_uploader('', type=['jpeg', 'jpg', 'png'])
 
 # Load classifier
-model = load_model('./modelcast.h5')
+model = load_model('./model.h5')
 
 # Load class names
-with open('./model/label.txt', 'r') as f:
+with open('./model/labels.txt', 'r') as f:
     class_names = [a[:-1].split(' ')[1] for a in f.readlines()]
 
 # Display image and classification results
