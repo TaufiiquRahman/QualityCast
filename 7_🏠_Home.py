@@ -80,12 +80,16 @@ if file is not None:
         perfect_classes = [(class_name, conf_score) for class_name, conf_score in top_classes if class_name == "Perfect"]
         defect_classes = [(class_name, conf_score) for class_name, conf_score in top_classes if class_name == "Defect"]
         
+        # Create a box to display percentage results
+        st.markdown(f'<div class="box"><h2>Perfect</h2><h3>Percentage: {sum([score for _, score in perfect_classes])*100:.1f}%</h3></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="box"><h2>Defect</h2><h3>Percentage: {sum([score for _, score in defect_classes])*100:.1f}%</h3></div>', unsafe_allow_html=True)
+        
         # Create a donut chart for Perfect predictions
         if perfect_classes:
             fig1, ax1 = plt.subplots()
             sizes1 = [score for _, score in perfect_classes]
             labels1 = [f'{class_name} ({score*100:.1f}%)' for class_name, score in perfect_classes]
-            ax1.pie(sizes1, labels=labels1, colors=['green'], startangle=90, counterclock=False, wedgeprops={'width': 0.3, 'edgecolor': 'w'})
+            ax1.pie(sizes1, labels=labels1, colors=['blue'], startangle=90, counterclock=False, wedgeprops={'width': 0.3, 'edgecolor': 'w'})
             ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
             st.pyplot(fig1)
         
