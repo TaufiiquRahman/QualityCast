@@ -74,13 +74,13 @@ if file is not None:
     # Column 2: Classification result and donut chart
     with col2:
         # Classify image
-        class_names, conf_score = classify(image, model, class_names)
+        class_name, conf_score = classify(image, model, class_names)
         conf_percentage = conf_score * 100
         
         # Write classification in a box
         st.markdown(f"""
         <div class="box">
-            <h2>{class_names}</h2>
+            <h2>{class_name}</h2>
             <h3>score: {conf_percentage:.1f}%</h3>
         </div>
         """, unsafe_allow_html=True)
@@ -88,7 +88,7 @@ if file is not None:
         # Create a donut chart
         fig, ax = plt.subplots()
         sizes = [conf_score, 1 - conf_score]
-        labels = [f'{class_names} ({conf_percentage:.1f}%)', 'Other']
+        labels = [f'{class_name} ({conf_percentage:.1f}%)', 'Other']
         colors = ['#ff9999','#66b3ff']
         ax.pie(sizes, labels=labels, colors=colors, startangle=90, counterclock=False, wedgeprops={'width': 0.3, 'edgecolor': 'w'})
         ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
@@ -99,17 +99,17 @@ if file is not None:
         # Save the result to history
         log = pd.DataFrame([{
             "filename": file.name,
-            "class_names": class_names,
+            "class_name": class_name,
             "confidence_score": f"{conf_percentage:.1f}%",
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }])
         
         # Load existing history if available
-        history_path = os.path.join(os.path.dirname(_file_), 'pages/history.csv')
+        history_path = os.path.join(os.path.dirname(__file__), 'history.csv')
         try:
             history = pd.read_csv(history_path)
         except FileNotFoundError:
-            history = pd.DataFrame(columns=["filename", "class_names", "confidence_score", "timestamp"])
+            history = pd.DataFrame(columns=["filename", "class_name", "confidence_score", "timestamp"])
         
         # Append new log using pd.concat
         history = pd.concat([history, log], ignore_index=True)
