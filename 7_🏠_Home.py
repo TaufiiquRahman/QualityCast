@@ -39,11 +39,11 @@ st.markdown(
     }
     .box h2, .box h3 {
         margin: 0;
+        color: white; /* Add this line to set text color to white */
     }
     </style>
     """, unsafe_allow_html=True
 )
-
 # Set title
 st.markdown('<div class="title-box">Casting Quality Control</div>', unsafe_allow_html=True)
 
@@ -79,10 +79,10 @@ if file is not None:
         # Calculate percentages for Perfect and Defect
         perfect_percentage = sum([score for class_name, score in top_classes if class_name == "Perfect"]) * 100
         defect_percentage = sum([score for class_name, score in top_classes if class_name == "Defect"]) * 100
-        
-        # Create a box to display percentage results
-        st.markdown(f'<div class="box"><h2>Perfect</h2><h3>Percentage: {perfect_percentage:.1f}%</h3></div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="box"><h2>Defect</h2><h3>Percentage: {defect_percentage:.1f}%</h3></div>', unsafe_allow_html=True)
+
+        # Create a single box to display percentage results for Perfect and Defect
+        st.markdown(f'<div class="box"><h2>Result</h2><h3>Perfect: {perfect_percentage:.1f}% | Defect: {defect_percentage:.1f}%</h3></div>', unsafe_allow_html=True)
+
         
         # Create a donut chart for Perfect and Defect predictions
         fig, ax = plt.subplots()
