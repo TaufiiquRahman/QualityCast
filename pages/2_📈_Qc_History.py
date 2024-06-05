@@ -59,3 +59,4 @@ else:
         st.table(history)
     except Exception as e:
         st.write(f"Error reading history.csv: {e}")
+#
