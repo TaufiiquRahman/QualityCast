@@ -39,7 +39,6 @@ st.markdown(
     }
     .box h2, .box h3 {
         margin: 0;
-        color: white; /* Add this line to set text color to white */
     }
     </style>
     """, unsafe_allow_html=True
@@ -54,65 +53,72 @@ st.markdown('<div class="header-box">Please upload a Casting Product Image</div>
 # Upload file
 file = st.file_uploader('', type=['jpeg', 'jpg', 'png'])
 
-# Function to classify images
-def classify(image, model, class_names):
-    # Preprocess the image
-    image = image.resize((300, 300))  # Resize image
-    image_array = np.array(image) / 255.0  # Normalize image
-    image_array = np.expand_dims(image_array, axis=0)  # Add batch dimension
-
-    # Make prediction
-    prediction = model.predict(image_array)[0]
-
-    # Get class names and scores
-    class_names = np.array(class_names)
-    top_indices = np.argsort(prediction)[::-1][:2]  # Top 2 classes
-    top_classes = class_names[top_indices]
-    top_scores = prediction[top_indices]
-
-    return top_classes, top_scores
-
-# Load model and class names
+# Load classifier
 model = load_model('./model.h5')
+
+# Load class names
 with open('./model/labels.txt', 'r') as f:
-    class_names = [line.strip() for line in f]
-
-
-
-
+    class_names = [a[:-1].split(' ')[1] for a in f.readlines()]
 
 # Display image and classification results
 if file is not None:
+    # Create two columns for layout
     col1, col2 = st.columns(2)
+    
+    # Column 1: Image and file name
     with col1:
         image = Image.open(file).convert('RGB')
         st.image(image, use_column_width=True)
         st.markdown(f'<div class="filename-box">Uploaded file: {file.name}</div>', unsafe_allow_html=True)
+    
+    # Column 2: Classification result and donut chart
     with col2:
         # Classify image
-        classes, scores = classify(image, model, class_names)
-
-        # Display classification results
-        for cls, score in zip(classes, scores):
-            st.markdown(f'<div class="box"><h2>{cls}</h2><h3>Score: {score:.4f}</h3></div>', unsafe_allow_html=True)
-
+        top_classes = classify(image, model, class_names, top_n=5)
+        
+        # Filter top classes for Perfect and Defect
+        perfect_classes = [(class_name, conf_score) for class_name, conf_score in top_classes if class_name == "Perfect"]
+        defect_classes = [(class_name, conf_score) for class_name, conf_score in top_classes if class_name == "Defect"]
+        
+        # Create a box to display percentage results
+        st.markdown(f'<div class="box"><h2>Perfect</h2><h3>Percentage: {sum([score for _, score in perfect_classes])*100:.1f}%</h3></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="box"><h2>Defect</h2><h3>Percentage: {sum([score for _, score in defect_classes])*100:.1f}%</h3></div>', unsafe_allow_html=True)
+        
+        # Create a donut chart for Perfect predictions
+        if perfect_classes:
+            fig1, ax1 = plt.subplots()
+            sizes1 = [score for _, score in perfect_classes]
+            labels1 = [f'{class_name} ({score*100:.1f}%)' for class_name, score in perfect_classes]
+            ax1.pie(sizes1, labels=labels1, colors=['blue'], startangle=90, counterclock=False, wedgeprops={'width': 0.3, 'edgecolor': 'w'})
+            ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+            st.pyplot(fig1)
+        
+        # Create a donut chart for Defect predictions
+        if defect_classes:
+            fig2, ax2 = plt.subplots()
+            sizes2 = [score for _, score in defect_classes]
+            labels2 = [f'{class_name} ({score*100:.1f}%)' for class_name, score in defect_classes]
+            ax2.pie(sizes2, labels=labels2, colors=['red'], startangle=90, counterclock=False, wedgeprops={'width': 0.3, 'edgecolor': 'w'})
+            ax2.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+            st.pyplot(fig2)
+        
         # Save the result to history
         log = pd.DataFrame([{
             "filename": file.name,
-            "class_name": cls,
-            "confidence_score": f"{score:.4f}",
+            "class_name": class_name,
+            "confidence_score": f"{conf_score*100:.1f}%",
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        } for cls, score in zip(classes, scores)])
-
+        } for class_name, conf_score in top_classes])
+        
         # Load existing history if available
         history_path = os.path.join(os.path.dirname(__file__), 'pages/history.csv')
         try:
             history = pd.read_csv(history_path)
         except FileNotFoundError:
             history = pd.DataFrame(columns=["filename", "class_name", "confidence_score", "timestamp"])
-
+        
         # Append new log using pd.concat
         history = pd.concat([history, log], ignore_index=True)
-
+        
         # Save updated history
         history.to_csv(history_path, index=False)
