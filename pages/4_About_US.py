@@ -16,11 +16,11 @@ image_files = os.listdir(folder_path)
 
 # Select the first 5 images and corresponding names and positions
 team_data = [
-    ("tim1", "Desainer"),
-    ("tim2", "Pemasaran"),
-    ("tim3", "Pengembang"),
-    ("tim4", "Manajer Proyek"),
-    ("tim5", "Spesialis UI/UX")
+    ("tim1", "Project Manager"),
+    ("tim2", "Copy Writter"),
+    ("tim3", "UI UX specialist"),
+    ("tim4", "Ai Engineer"),
+    ("tim5", "Back End Engineer")
 ] 
 
 # Split the page into 5 columns
