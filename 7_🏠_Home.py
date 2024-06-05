@@ -77,11 +77,11 @@ if file is not None:
         top_classes = classify(image, model, class_names, top_n=5)
         
        # Calculate percentages for Perfect and Defect
-            perfect_percentage = sum([score for class_name, score in top_classes if class_name == "Perfect"]) * 100
-            defect_percentage = sum([score for class_name, score in top_classes if class_name == "Defect"]) * 100
+        perfect_percentage = sum([score for class_name, score in top_classes if class_name == "Perfect"]) * 100
+        defect_percentage = sum([score for class_name, score in top_classes if class_name == "Defect"]) * 100
 
         # Create a single box to display percentage results for Perfect and Defect
-            st.markdown(f'<div class="box"><h2>Result</h2><h3>Perfect: {perfect_percentage:.1f}% | Defect: {defect_percentage:.1f}%</h3></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="box"><h2>Result</h2><h3>Perfect: {perfect_percentage:.1f}% | Defect: {defect_percentage:.1f}%</h3></div>', unsafe_allow_html=True)
 
         
         # Create a donut chart for Perfect and Defect predictions
