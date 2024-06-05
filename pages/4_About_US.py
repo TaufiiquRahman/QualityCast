@@ -3,6 +3,17 @@ import os
 from PIL import Image
 
 # Define CSS for the title, header, image name, and text boxes
+markdown = """
+
+Web App URL: <https://qualitycastapp.streamlit.app/>
+GitHub Repository: <https://github.com/TaufiiquRahman/QualityCast>
+"""
+
+st.sidebar.title("About")
+st.sidebar.info(markdown)
+logo = "https://i.imgur.com/UbOXYAU.png"
+st.sidebar.image(logo)
+
 
 # Set title
 st.title("Casting Quality Control")
