@@ -39,11 +39,11 @@ st.markdown(
     }
     .box h2, .box h3 {
         margin: 0;
-        color: white; /* Add this line to set text color to white */
     }
     </style>
     """, unsafe_allow_html=True
 )
+
 # Set title
 st.markdown('<div class="title-box">Casting Quality Control</div>', unsafe_allow_html=True)
 
@@ -58,7 +58,10 @@ model = load_model('./model.h5')
 
 # Load class names
 with open('./model/labels.txt', 'r') as f:
-    class_names = [a[:-1].split(' ')[1] for a in f.readlines()]
+    class_names = [line.strip().split(' ')[1] for line in f.readlines()]
+
+# Print class names for debugging
+print("Loaded class names:", class_names)
 
 # Display image and classification results
 if file is not None:
@@ -74,32 +77,42 @@ if file is not None:
     # Column 2: Classification result and donut chart
     with col2:
         # Classify image
-        top_classes = classify(image, model, class_names, top_n=5)
+        top_classes = classify(image, model, class_names, top_n=1)
         
-       # Calculate percentages for Perfect and Defect
-        perfect_percentage = sum([score for class_name, score in top_classes if class_name == "Perfect"]) * 100
-        defect_percentage = sum([score for class_name, score in top_classes if class_name == "Defect"]) * 100
-
-        # Create a single box to display percentage results for Perfect and Defect
-        st.markdown(f'<div class="box"><h2>Result</h2><h3>Perfect: {perfect_percentage:.1f}% | Defect: {defect_percentage:.1f}%</h3></div>', unsafe_allow_html=True)
-
+        # Print top_classes for debugging
+        print("Top classes:", top_classes)
         
-        # Create a donut chart for Perfect and Defect predictions
+        # Display the top class and its confidence score
+        top_class_name, top_conf_score = top_classes[0]
+        top_conf_percentage = top_conf_score * 100
+        st.markdown(f"""
+        <div class="box">
+            <h2>{top_class_name}</h2>
+            <h3>score: {top_conf_percentage:.1f}%</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Create a donut chart
         fig, ax = plt.subplots()
-        sizes = [score for class_name, score in top_classes]
-        labels = [f'{class_name} ({score*100:.1f}%)' for class_name, score in top_classes]
-        colors = ['white' if class_name == "Perfect" else 'red' for class_name, _ in top_classes]
+        sizes = [top_conf_score, 1 - top_conf_score]
+        labels = [f'{top_class_name} ({top_conf_percentage:.1f}%)', 'Perfect' if top_class_name == 'Defect' else 'Other']
+        colors = ['#ff9999', '#66b3ff'] if top_class_name == 'Defect' else ['#66b3ff', '#ff9999']
         ax.pie(sizes, labels=labels, colors=colors, startangle=90, counterclock=False, wedgeprops={'width': 0.3, 'edgecolor': 'w'})
         ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+        
+        # Display the donut chart
         st.pyplot(fig)
         
         # Save the result to history
         log = pd.DataFrame([{
             "filename": file.name,
-            "class_name": class_name,
-            "confidence_score": f"{conf_score*100:.1f}%",
+            "class_name": top_class_name,
+            "confidence_score": f"{top_conf_percentage:.1f}%",
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        } for class_name, conf_score in top_classes])
+        }])
+        
+        # Print log for debugging
+        print("Log entry:", log)
         
         # Load existing history if available
         history_path = os.path.join(os.path.dirname(__file__), 'pages/history.csv')
@@ -110,6 +123,9 @@ if file is not None:
         
         # Append new log using pd.concat
         history = pd.concat([history, log], ignore_index=True)
+        
+        # Print updated history for debugging
+        print("Updated history:", history)
         
         # Save updated history
         history.to_csv(history_path, index=False)
