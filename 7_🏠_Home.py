@@ -77,15 +77,9 @@ model = load_model('./model.h5')
 with open('./model/labels.txt', 'r') as f:
     class_names = [line.strip() for line in f]
 
-# Set background
-set_background('./bgrd/bg.jpg')
 
-# Set title and header
-st.markdown('<div class="title-box">Casting Quality Control</div>', unsafe_allow_html=True)
-st.markdown('<div class="header-box">Please upload a Casting Product Image</div>', unsafe_allow_html=True)
 
-# Upload file
-file = st.file_uploader('', type=['jpeg', 'jpg', 'png'])
+
 
 # Display image and classification results
 if file is not None:
