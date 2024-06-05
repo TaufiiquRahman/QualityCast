@@ -85,18 +85,29 @@ if file is not None:
         # Display the top class and its confidence score
         top_class_name, top_conf_score = top_classes[0]
         top_conf_percentage = top_conf_score * 100
+
+        # Get the index of the second class (other than the top class)
+        second_class_index = 1 if top_class_name == class_names[0] else 0
+
+        # Get the name and score of the second class
+        second_class_name = class_names[second_class_index]
+        second_conf_score = 1 - top_conf_score
+        second_conf_percentage = 100 - top_conf_percentage
+
+        # Display the box with scores of both classes
         st.markdown(f"""
         <div class="box">
-            <h2>{top_class_name}</h2>
-            <h3>score: {top_conf_percentage:.1f}%</h3>
+            <h2 style="color: white; text-align: center;">Result</h2>
+            <h3 style="color: white;">{top_class_name} - {top_conf_percentage:.1f}%</h3>
+            <h3 style="color: white;">{second_class_name} - {second_conf_percentage:.1f}%</h3>
         </div>
         """, unsafe_allow_html=True)
         
         # Create a donut chart
-        fig, ax = plt.subplots()
-        sizes = [top_conf_score, 1 - top_conf_score]
-        labels = [f'{top_class_name} ({top_conf_percentage:.1f}%)', 'Perfect' if top_class_name == 'Defect' else 'Other']
-        colors = ['#ff9999', '#66b3ff'] if top_class_name == 'Defect' else ['#66b3ff', '#ff9999']
+        fig, ax = plt.subplots()    
+        sizes = [top_conf_score, second_conf_score]
+        labels = [f'{class_name} ({conf_percentage:.1f}%)' for class_name, conf_percentage in zip([top_class_name, second_class_name], [top_conf_percentage, second_conf_percentage])]
+        colors = ['#ff9999', '#66b3ff']
         ax.pie(sizes, labels=labels, colors=colors, startangle=90, counterclock=False, wedgeprops={'width': 0.3, 'edgecolor': 'w'})
         ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
         
