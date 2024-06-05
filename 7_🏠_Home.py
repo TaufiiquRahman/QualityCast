@@ -1,3 +1,65 @@
+import streamlit as st
+from keras.models import load_model
+from PIL import Image
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+from util import classify, set_background
+from datetime import datetime
+import os
+
+# Set background
+set_background('./bgrd/bg.jpg')
+
+# Define CSS for the title, header, image name, and text boxes
+st.markdown(
+    """
+    <style>
+    .title-box, .header-box, .filename-box, .box {
+        border: 1px solid #000;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #333;
+        color: white;
+        margin-top: 20px;
+    }
+    .title-box {
+        text-align: center;
+        font-size: 32px;
+        font-weight: bold;
+    }
+    .header-box {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+    }
+    .filename-box {
+        text-align: center;
+        font-size: 18px;
+    }
+    .box h2, .box h3 {
+        margin: 0;
+    }
+    </style>
+    """, unsafe_allow_html=True
+)
+
+# Set title
+st.markdown('<div class="title-box">Casting Quality Control</div>', unsafe_allow_html=True)
+
+# Set header
+st.markdown('<div class="header-box">Please upload a Casting Product Image</div>', unsafe_allow_html=True)
+
+# Upload file
+file = st.file_uploader('', type=['jpeg', 'jpg', 'png'])
+
+# Load classifier
+model = load_model('./model.h5')
+
+# Load class names
+with open('./model/labels.txt', 'r') as f:
+    class_names = [a[:-1].split(' ')[1] for a in f.readlines()]
+
 # Display image and classification results
 if file is not None:
     # Create two columns for layout
