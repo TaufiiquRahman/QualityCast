@@ -3,32 +3,56 @@ import os
 from PIL import Image
 
 # Define CSS for the title, header, image name, and text boxes
+st.markdown(
+    """
+    <style>
+    .title-box, .header-box, .filename-box, .box {
+        border: 1px solid #000;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #333;
+        color: white;
+        margin-top: 20px;
+    }
+    .title-box {
+        text-align: center;
+        font-size: 32px;
+        font-weight: bold;
+    }
+    .header-box {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+    }
+    .filename-box {
+        text-align: center;
+        font-size: 18px;
+    }
+    .box h2, .box h3 {
+        margin: 0;
+    }
+    </style>
+    """, unsafe_allow_html=True
+)
 
-# Set title
-st.markdown("<h1 style='text-align: center;'>Contact Us</h1>", unsafe_allow_html=True)
-markdown = """
-1. Firts Please Upload / Drag Image File to box 
-
+# Set title and markdown for the "Contact Us" section
+st.markdown("<h1 class='title-box'>Contact Us</h1>", unsafe_allow_html=True)
+markdown_contact_us = """
+1. First, Please Upload / Drag Image File to the box.
 """
 
-st.markdown(markdown)
+st.markdown(markdown_contact_us)
 
-# Set title
-st.markdown("<h2 style='text-align: center;'>Contact Us</h2>", unsafe_allow_html=True)
-markdown = """
-1. Firts Please Upload / Drag Image File to box 
-
+# Set title and markdown for the "About Us" section
+st.markdown("<h2 class='title-box'>About Us</h2>", unsafe_allow_html=True)
+markdown_about_us = """
+This is the About Us page. You can provide information about your project, team, or any other relevant details here.
 """
 
-st.markdown(markdown)
+st.markdown(markdown_about_us)
 
-
-
-# Set title for the team section with center alignment
-st.markdown("<h3 style='text-align: center;'>Team</h3>", unsafe_allow_html=True)
-    
-# Add content for the About Us page
-st.write("This is the About Us page. You can provide information about your project, team, or any other relevant details here.")
+# Set title for the "Team" section with center alignment
+st.markdown("<h3 class='title-box'>Team</h3>", unsafe_allow_html=True)
 
 # Path to the folder containing team member images
 folder_path = "team"
@@ -47,7 +71,6 @@ team_data = [
 
 # Split the page into 5 columns
 columns = st.columns(5)
-
 
 for i, (name, position) in enumerate(team_data):
     image_file = f"{name.lower()}.jpg"  
