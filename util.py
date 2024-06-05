@@ -3,6 +3,7 @@ import streamlit as st
 from PIL import ImageOps, Image
 import numpy as np
 import tensorflow as tf
+import os
 
 def set_background(image_file):
     """
