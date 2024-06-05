@@ -82,8 +82,8 @@ if file is not None:
                 # Change color of class name and score
         st.markdown(f"""
         <div class="box">
-                <h2 style="color: red;">{class_name}</h2>
-                <h3 style="color: blue;">score: {conf_percentage:.1f}%</h3>
+                <h2 style="color: white;">{class_name}</h2>
+                <h3 style="color: white;">score: {conf_percentage:.1f}%</h3>
         </div>
         """, unsafe_allow_html=True)
         
