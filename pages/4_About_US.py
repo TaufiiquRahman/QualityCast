@@ -17,9 +17,9 @@ image_files = os.listdir(folder_path)
 # Select the first 5 images and corresponding names and positions
 team_data = [
     ("tim1", "Project Manager"),
-    ("tim2", "Copy Writter"),
-    ("tim3", "UI UX specialist"),
-    ("tim4", "Ai Engineer"),
+    ("tim2", "UI/UX Specialist"),
+    ("tim3", "Copy Writter"),
+    ("tim4", "AI Engineer"),
     ("tim5", "Back End Engineer")
 ] 
 
