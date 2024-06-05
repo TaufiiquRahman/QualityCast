@@ -1,2 +1,2 @@
-Perfect
-Defect
+0 Perfect
+1 Defect
