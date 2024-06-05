@@ -63,3 +63,4 @@ def classify(image, model, class_names, top_n=1):
     top_classes = [(class_names[i], prediction[0][i]) for i in top_indices]
 
     return top_classes
+    ####################################
