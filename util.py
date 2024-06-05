@@ -28,44 +28,41 @@ def set_background(image_file):
     """
     st.markdown(style, unsafe_allow_html=True)
 
-def classify(image, model, class_names, top_n=5):
+def classify_new(image, model, class_names):
     """
-    This function takes an image, a model, a list of class names, and returns the top N predicted classes 
-    along with their confidence scores.
+    This function takes an image, a model, and a list of class names and returns the predicted class and confidence
+    score of the image using a different prediction approach.
 
     Parameters:
         image (PIL.Image.Image): An image to be classified.
         model (tensorflow.keras.Model): A trained machine learning model for image classification.
         class_names (list): A list of class names corresponding to the classes that the model can predict.
-        top_n (int): Number of top predicted classes to return.
 
     Returns:
-        A list of tuples containing the top N predicted class names and their confidence scores.
+        A tuple of the predicted class name and the confidence score for that prediction.
     """
-    # Check if the image is grayscale
+    # Convert image to grayscale if not already
     if image.mode != 'L':
         image = ImageOps.grayscale(image)
-
-    # Resize the image to match the input shape expected by the model
+    
+    # Resize the image to the input shape expected by the model
     image = image.resize((300, 300))
 
     # Convert image to numpy array and normalize
     image_array = np.array(image) / 255.0
 
-    # Expand dimensions to match the input shape expected by the model
-    image_array = np.expand_dims(image_array, axis=-1)  # Add channel dimension for grayscale image
-    image_array = np.expand_dims(image_array, axis=0)   # Add batch dimension
+    # Add batch dimension (1, 300, 300, 1)
+    image_array = np.expand_dims(image_array, axis=(0, -1))
 
-    # Make prediction
+    # Make prediction using the model
     prediction = model.predict(image_array)
 
-    # Get top N predicted class indices and their corresponding scores
-    top_indices = np.argsort(prediction)[0][-top_n:][::-1]
-    top_scores = prediction[0][top_indices]
+    # Get the index of the class with the highest probability
+    predicted_index = np.argmax(prediction, axis=1)[0]
 
-    # Map indices to class names and create tuples of class name and confidence score
-    top_classes = [(class_names[i], score) for i, score in zip(top_indices, top_scores)]
+    # Get the class name and confidence score
+    predicted_class = class_names[predicted_index]
+    confidence_score = prediction[0][predicted_index]
 
-    return top_classes
-
-#
+    return predicted_class, confidence_score
+####
