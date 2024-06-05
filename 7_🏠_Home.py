@@ -78,14 +78,13 @@ if file is not None:
         
         # Write classification in a box
         for i, (class_name, conf_score) in enumerate(top_classes):
-                conf_percentage = conf_score * 100
-                # Change color of class name and score
-        st.markdown(f"""
-        <div class="box">
-                <h2 style="color: white;">{class_name}</h2>
-                <h3 style="color: white;">score: {conf_percentage:.1f}%</h3>
-        </div>
-        """, unsafe_allow_html=True)
+            conf_percentage = conf_score * 100
+            st.markdown(f"""
+            <div class="box">
+                <h2>{class_name}</h2>
+                <h3>score: {conf_percentage:.1f}%</h3>
+            </div>
+            """, unsafe_allow_html=True)
         
         # Create a donut chart
         fig, ax = plt.subplots()
