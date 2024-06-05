@@ -2,8 +2,30 @@ import streamlit as st
 import os
 from PIL import Image
 
+# Define CSS for the title, header, image name, and text boxes
+
 # Set title
-st.title("About Us")
+st.title("Casting Quality Control")
+markdown = """
+1. Firts Please Upload / Drag Image File to box 
+
+"""
+
+st.markdown(markdown)
+
+# Set title
+st.title("Contact Us")
+markdown = """
+1. Firts Please Upload / Drag Image File to box 
+
+"""
+
+st.markdown(markdown)
+
+
+
+# Set title for the team section with center alignment
+st.markdown("<h1 style='text-align: center;'>Team</h1>", unsafe_allow_html=True)
     
 # Add content for the About Us page
 st.write("This is the About Us page. You can provide information about your project, team, or any other relevant details here.")
@@ -18,7 +40,7 @@ image_files = os.listdir(folder_path)
 team_data = [
     ("tim1", "Project Manager"),
     ("tim2", "UI/UX Specialist"),
-    ("tim3", "Copy Writter"),
+    ("tim3", "Copy Writer"),
     ("tim4", "AI Engineer"),
     ("tim5", "Back End Engineer")
 ] 
@@ -37,6 +59,3 @@ for i, (name, position) in enumerate(team_data):
         columns[i].image(resized_img, caption=f"{name}", use_column_width=True)
         # Center-align the position text
         columns[i].write(f"<p style='text-align:center'>{position}</p>", unsafe_allow_html=True)
-
-
-#st.markdown(markdown, unsafe_allow_html=True)
