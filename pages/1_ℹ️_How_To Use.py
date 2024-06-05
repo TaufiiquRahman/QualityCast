@@ -2,8 +2,8 @@ import streamlit as st
 
 
 markdown = """
-Web App URL: <https://capstoneproject37.streamlit.app/>
-GitHub Repository: <https://github.com/TaufiiquRahman/CapstoneProject37>
+Web App URL: <https://qualitycastapp.streamlit.app/>
+GitHub Repository: <https://github.com/TaufiiquRahman/QualityCast>
 """
 
 st.sidebar.title("About")
