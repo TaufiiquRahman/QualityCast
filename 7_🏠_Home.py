@@ -8,18 +8,6 @@ from util import classify, set_background
 from datetime import datetime
 import os
 
-# Function to set background
-def set_background(image_path):
-    page_bg_img = '''
-    <style>
-    body {
-    background-image: url("'''+image_path+'''");
-    background-size: cover;
-    }
-    </style>
-    '''
-    st.markdown(page_bg_img, unsafe_allow_html=True)
-
 # Set background
 set_background('./bgrd/bg.jpg')
 
@@ -75,9 +63,6 @@ with open('./model/labels.txt', 'r') as f:
 # Print class names for debugging
 print("Loaded class names:", class_names)
 
-# Define threshold for classification confidence
-threshold = 0.5  # Set your desired threshold here
-
 # Display image and classification results
 if file is not None:
     # Create two columns for layout
@@ -94,67 +79,64 @@ if file is not None:
         # Classify image
         top_classes = classify(image, model, class_names, top_n=1)
         
-        # Check if classification confidence is above threshold
-        if top_classes[0][1] >= threshold:
-            # Display classification results
-            top_class_name, top_conf_score = top_classes[0]
-            # Get the index of the second class (other than the top class)
-            second_class_index = 1 if top_class_name == class_names[0] else 0
-            # Get the name and score of the second class
-            second_class_name = class_names[second_class_index]
-            second_conf_score = 1 - top_conf_score
-            second_conf_percentage = 100 * second_conf_score
-            # Display the box with scores of both classes
-            st.markdown(f"""
-            <div class="box">
-                <h2 style="color: white; text-align: center;">Result</h2>
-                <h3 style="color: white;">{top_class_name} - {top_conf_score:.1f}%</h3>
-                <h3 style="color: white;">{second_class_name} - {second_conf_percentage:.1f}%</h3>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            # Create a donut chart
-            fig, ax = plt.subplots()    
-            sizes = [top_conf_score, second_conf_score]
-            labels = [f'{class_name} ({conf_percentage:.1f}%)' for class_name, conf_percentage in zip([top_class_name, second_class_name], [top_conf_score * 100, second_conf_percentage])]
-            colors = ['#ff9999', '#66b3ff']
-            ax.pie(sizes, labels=labels, colors=colors, startangle=90, counterclock=False, wedgeprops={'width': 0.3, 'edgecolor': 'w'})
-            ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-            # Draw a circle in the center to make it a donut chart
-            centre_circle = plt.Circle((0,0),0.70,fc='white')
-            ax.add_artist(centre_circle)
-            # Add text for ratio score in the center of the donut
-            ax.text(0, 0, f'{top_conf_score/second_conf_score:.2f}', ha='center', va='center', fontsize=20, color='white')
-            
-            # Display the donut chart
-            st.pyplot(fig)
-            
-            # Save the result to history
-            log = pd.DataFrame([{
-                "filename": file.name,
-                "class_name": top_class_name,
-                "confidence_score": f"{top_conf_score:.1f}%",
-                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            }])
+        # Print top_classes for debugging
+        print("Top classes:", top_classes)
+        
+        # Display the top class and its confidence score
+        top_class_name, top_conf_score = top_classes[0]
+        top_conf_percentage = top_conf_score * 100
 
-            # Print log for debugging
-            print("Log entry:", log)
-            
-            # Load existing history if available
-            history_path = os.path.join(os.path.dirname(__file__), 'pages/history.csv')
-            try:
-                history = pd.read_csv(history_path)
-            except FileNotFoundError:
-                history = pd.DataFrame(columns=["filename", "class_name", "confidence_score", "timestamp"])
-            
-            # Append new log using pd.concat
-            history = pd.concat([history, log], ignore_index=True)
-            
-            # Print updated history for debugging
-            print("Updated history:", history)
-            
-            # Save updated history
-            history.to_csv(history_path, index=False)
-        else:
-            st.warning("The uploaded image does not match any trained classes with sufficient confidence.")
+        # Get the index of the second class (other than the top class)
+        second_class_index = 1 if top_class_name == class_names[0] else 0
 
+        # Get the name and score of the second class
+        second_class_name = class_names[second_class_index]
+        second_conf_score = 1 - top_conf_score
+        second_conf_percentage = 100 - top_conf_percentage
+
+        # Display the box with scores of both classes
+        st.markdown(f"""
+        <div class="box">
+            <h2 style="color: white; text-align: center;">Result</h2>
+            <h3 style="color: white;">{top_class_name} - {top_conf_percentage:.1f}%</h3>
+            <h3 style="color: white;">{second_class_name} - {second_conf_percentage:.1f}%</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Create a donut chart
+        fig, ax = plt.subplots()    
+        sizes = [top_conf_score, second_conf_score]
+        labels = [f'{class_name} ({conf_percentage:.1f}%)' for class_name, conf_percentage in zip([top_class_name, second_class_name], [top_conf_percentage, second_conf_percentage])]
+        colors = ['#ff9999', '#66b3ff']
+        ax.pie(sizes, labels=labels, colors=colors, startangle=90, counterclock=False, wedgeprops={'width': 0.3, 'edgecolor': 'w'})
+        ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+        
+        # Display the donut chart
+        st.pyplot(fig)
+        
+        # Save the result to history
+        log = pd.DataFrame([{
+            "filename": file.name,
+            "class_name": top_class_name,
+            "confidence_score": f"{top_conf_percentage:.1f}%",
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }])
+        
+        # Print log for debugging
+        print("Log entry:", log)
+        
+        # Load existing history if available
+        history_path = os.path.join(os.path.dirname(__file__), 'pages/history.csv')
+        try:
+            history = pd.read_csv(history_path)
+        except FileNotFoundError:
+            history = pd.DataFrame(columns=["filename", "class_name", "confidence_score", "timestamp"])
+        
+        # Append new log using pd.concat
+        history = pd.concat([history, log], ignore_index=True)
+        
+        # Print updated history for debugging
+        print("Updated history:", history)
+        
+        # Save updated history
+        history.to_csv(history_path, index=False)
