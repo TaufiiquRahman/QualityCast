@@ -9,7 +9,7 @@ st.title("How To Use")
 st.header("Instructions")
 
 markdown = """
-1. Firts Please Upload / Drag Image File to box 
+1. Firts, Please Upload / Drag Image File to box 
 
 """
 
