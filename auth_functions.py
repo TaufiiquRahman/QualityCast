@@ -154,3 +154,29 @@ def delete_account(password:str) -> None:
 
     except Exception as error:
         print(error)
+
+
+def change_password(email:str, old_password:str, new_password:str) -> None:
+    try:
+        # Confirm email and password by signing in (and save id_token)
+        id_token = sign_in_with_email_and_password(email, old_password)['idToken']
+        
+        # Attempt to change password
+        request_ref = "https://identitytoolkit.googleapis.com/v1/accounts:update?key={0}".format(st.secrets['FIREBASE_WEB_API_KEY'])
+        headers = {"content-type": "application/json; charset=UTF-8"}
+        data = json.dumps({"idToken": id_token, "password": new_password, "returnSecureToken": False})
+        request_object = requests.post(request_ref, headers=headers, data=data)
+        raise_detailed_error(request_object)
+
+        st.session_state.auth_success = 'Password changed successfully'
+
+    except requests.exceptions.HTTPError as error:
+        error_message = json.loads(error.args[1])['error']['message']
+        if error_message in {"MISSING_PASSWORD", "INVALID_PASSWORD"}:
+            st.session_state.auth_warning = 'Error: Use a valid password'
+        else:
+            st.session_state.auth_warning = 'Error: Please try again later'
+
+    except Exception as error:
+        print(error)
+        st.session_state.auth_warning = 'Error: Please try again later'

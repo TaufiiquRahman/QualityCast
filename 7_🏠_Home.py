@@ -16,30 +16,38 @@ set_background('./bgrd/bg.jpg')
 st.markdown(
     """
     <style>
-    .title-box, .header-box, .filename-box, .box {
+    .title-box, .header-box, .filename-box, .box, .button-box {
         border: 1px solid #000;
         padding: 10px;
         border-radius: 5px;
         background-color: #333;
         color: white;
         margin-top: 20px;
+        text-align: center;
     }
     .title-box {
-        text-align: center;
         font-size: 32px;
         font-weight: bold;
     }
     .header-box {
-        text-align: center;
         font-size: 24px;
         font-weight: bold;
     }
     .filename-box {
-        text-align: center;
         font-size: 18px;
     }
     .box h2, .box h3 {
         margin: 0;
+    }
+    .stButton>button {
+        background-color: #333;
+        color: white;
+        border-radius: 5px;
+        border: 1px solid #000;
+    }
+    .center-button {
+        display: flex;
+        justify-content: center;
     }
     </style>
     """, unsafe_allow_html=True
@@ -48,11 +56,14 @@ st.markdown(
 # -------------------------------------------------------------------------------------------------
 # Main
 # -------------------------------------------------------------------------------------------------
+
+
 if 'user_info' not in st.session_state:
     col1, col2, col3 = st.columns([1, 2, 1])
 
     # Authentication form layout
-    do_you_have_an_account = col2.selectbox(label='Do you have an account?', options=('Yes', 'No', 'I forgot my password'))
+    do_you_have_an_account = col2.selectbox(label='Do you have an account?', options=('Yes', 'No', 'I forgot my password'), help='Select one option', key='auth_select')
+    st.markdown('<style>select#auth_select { font-size: 18px; }</style>', unsafe_allow_html=True)
     auth_form = col2.form(key='Authentication form', clear_on_submit=False)
     email = auth_form.text_input(label='Email')
     password = auth_form.text_input(label='Password', type='password') if do_you_have_an_account in {'Yes', 'No'} else auth_form.empty()
@@ -100,74 +111,87 @@ else:
 
     # Display image and classification results
     if file is not None:
-        # Create two columns for layout
-        col1, col2 = st.columns(2)
+        # Show the start button after file is uploaded
+        if st.button('Start Prediction'):
+            st.session_state.prediction_started = True
 
-        # Column 1: Image and file name
-        with col1:
-            image = Image.open(file).convert('RGB')
-            st.image(image, use_column_width=True)
-            st.markdown(f'<div class="filename-box">Uploaded file: {file.name}</div>', unsafe_allow_html=True)
+        # Display image and classification results if the start button is pressed
+        if 'prediction_started' in st.session_state and st.session_state.prediction_started:
+            # Create two columns for layout
+            col1, col2 = st.columns(2)
 
-        # Column 2: Classification result and donut chart
-        with col2:
-            # Classify image
-            top_classes = classify(image, model, class_names, top_n=1)
+            # Column 1: Image and file name
+            with col1:
+                image = Image.open(file).convert('RGB')
+                st.image(image, use_column_width=True)
+                st.markdown(f'<div class="filename-box">Uploaded file: {file.name}</div>', unsafe_allow_html=True)
 
-            # Display the top class and its confidence score
-            top_class_name, top_conf_score = top_classes[0]
-            top_conf_percentage = top_conf_score * 100
+            # Column 2: Classification result and donut chart
+            with col2:
+                # Classify image
+                top_classes = classify(image, model, class_names, top_n=1)
 
-            # Get the index of the second class (other than the top class)
-            second_class_index = 1 if top_class_name == class_names[0] else 0
+                # Display the top class and its confidence score
+                top_class_name, top_conf_score = top_classes[0]
+                top_conf_percentage = top_conf_score * 100
 
-            # Get the name and score of the second class
-            second_class_name = class_names[second_class_index]
-            second_conf_score = 1 - top_conf_score
-            second_conf_percentage = 100 - top_conf_percentage
+                # Get the index of the second class (other than the top class)
+                second_class_index = 1 if top_class_name == class_names[0] else 0
 
-            # Display the box with scores of both classes
-            st.markdown(f"""
-            <div class="box">
-                <h2 style="color: white; text-align: center;">Result</h2>
-                <h3 style="color: white;">{top_class_name} - {top_conf_percentage:.1f}%</h3>
-                <h3 style="color: white;">{second_class_name} - {second_conf_percentage:.1f}%</h3>
-            </div>
-            """, unsafe_allow_html=True)
+                # Get the name and score of the second class
+                second_class_name = class_names[second_class_index]
+                second_conf_score = 1 - top_conf_score
+                second_conf_percentage = 100 - top_conf_percentage
 
-            # Create a donut chart
-            fig, ax = plt.subplots()
-            sizes = [top_conf_score, second_conf_score]
-            labels = [f'{class_name} ({conf_percentage:.1f}%)' for class_name, conf_percentage in zip([top_class_name, second_class_name], [top_conf_percentage, second_conf_percentage])]
-            colors = ['#ff9999', '#66b3ff']
-            ax.pie(sizes, labels=labels, colors=colors, startangle=90, counterclock=False, wedgeprops={'width': 0.3, 'edgecolor': 'w'})
-            ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+                # Display the box with scores of both classes
+                st.markdown(f"""
+                <div class="box">
+                    <h2 style="color: white; text-align: center;">Result</h2>
+                    <h3 style="color: white;">{top_class_name} - {top_conf_percentage:.1f}%</h3>
+                    <h3 style="color: white;">{second_class_name} - {second_conf_percentage:.1f}%</h3>
+                </div>
+                """, unsafe_allow_html=True)
 
-            # Display the donut chart
-            st.pyplot(fig)
+                # Create a donut chart
+                fig, ax = plt.subplots()
+                sizes = [top_conf_score, second_conf_score]
+                labels = [f'{class_name} ({conf_percentage:.1f}%)' for class_name, conf_percentage in zip([top_class_name, second_class_name], [top_conf_percentage, second_conf_percentage])]
+                colors = ['#ff9999', '#66b3ff']
+                ax.pie(sizes, labels=labels, colors=colors, startangle=90, counterclock=False, wedgeprops={'width': 0.3, 'edgecolor': 'w'})
+                ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
-            # Save the result to history
-            log = pd.DataFrame([{
-                "filename": file.name,
-                "class_name": top_class_name,
-                "confidence_score": f"{top_conf_percentage:.1f}%",
-                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            }])
+                # Display the donut chart
+                st.pyplot(fig)
 
-            # Load existing history if available
-            history_path = os.path.join(os.path.dirname(__file__), 'pages/history.csv')
-            try:
-                history = pd.read_csv(history_path)
-            except FileNotFoundError:
-                history = pd.DataFrame(columns=["filename", "class_name", "confidence_score", "timestamp"])
+                # Save the result to history
+                log = pd.DataFrame([{
+                    "filename": file.name,
+                    "class_name": top_class_name,
+                    "confidence_score": f"{top_conf_percentage:.1f}%",
+                    "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                }])
 
-            # Append new log using pd.concat
-            history = pd.concat([history, log], ignore_index=True)
+                # Load existing history if available
+                history_path = os.path.join(os.path.dirname(__file__), 'pages/history.csv')
+                try:
+                    history = pd.read_csv(history_path)
+                except FileNotFoundError:
+                    history = pd.DataFrame(columns=["filename", "class_name", "confidence_score", "timestamp"])
 
-            # Save updated history
-            history.to_csv(history_path, index=False)
+                # Append new log using pd.concat
+                history = pd.concat([history, log], ignore_index=True)
+
+                # Save updated history
+                history.to_csv(history_path, index=False)
+
+            # Show the reset button below the donut chart
+            st.markdown('<div class="center-button">', unsafe_allow_html=True)
+            if st.button('Reset'):
+                if 'prediction_started' in st.session_state:
+                    del st.session_state.prediction_started
+                st.experimental_rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
 
     # Sign out
     if st.sidebar.button(label='Sign Out', on_click=auth_functions.sign_out, type='primary'):
         pass  #
-
